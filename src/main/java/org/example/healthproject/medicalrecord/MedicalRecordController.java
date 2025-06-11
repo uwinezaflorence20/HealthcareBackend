@@ -19,27 +19,27 @@ public class MedicalRecordController {
     }
 
     @GetMapping
-    public List<MedicalRecord> getAllMedicalRecords() {
+    public List<MedicalRecordDTO> getAllMedicalRecords() {
         return medicalRecordService.getAllMedicalRecords();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MedicalRecord> getMedicalRecordById(@PathVariable Long id) {
+    public ResponseEntity<MedicalRecordDTO> getMedicalRecordById(@PathVariable Long id) {
         return medicalRecordService.getMedicalRecordById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<MedicalRecord> createMedicalRecord(@Valid @RequestBody MedicalRecord medicalRecord) {
-        MedicalRecord savedRecord = medicalRecordService.createMedicalRecord(medicalRecord);
+    public ResponseEntity<MedicalRecordDTO> createMedicalRecord(@Valid @RequestBody MedicalRecordDTO medicalRecordDTO) {
+        MedicalRecordDTO savedRecord = medicalRecordService.createMedicalRecord(medicalRecordDTO);
         return ResponseEntity.ok(savedRecord);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MedicalRecord> updateMedicalRecord(@PathVariable Long id, @Valid @RequestBody MedicalRecord medicalRecordDetails) {
+    public ResponseEntity<MedicalRecordDTO> updateMedicalRecord(@PathVariable Long id, @Valid @RequestBody MedicalRecordDTO medicalRecordDTO) {
         try {
-            MedicalRecord updatedRecord = medicalRecordService.updateMedicalRecord(id, medicalRecordDetails);
+            MedicalRecordDTO updatedRecord = medicalRecordService.updateMedicalRecord(id, medicalRecordDTO);
             return ResponseEntity.ok(updatedRecord);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();

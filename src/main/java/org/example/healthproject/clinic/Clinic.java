@@ -1,5 +1,6 @@
 package org.example.healthproject.clinic;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,10 +44,12 @@ public class Clinic {
 
     // One clinic has many patients
     @OneToMany(mappedBy = "clinic", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private List<Patient> patients;
 
     // One clinic has many doctors
     @OneToMany(mappedBy = "clinic", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private List<Doctor> doctors;
 
 

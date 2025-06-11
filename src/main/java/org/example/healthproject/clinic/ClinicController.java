@@ -31,9 +31,9 @@ public class ClinicController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createClinic(@Valid @RequestBody Clinic clinic) {
+    public ResponseEntity<?> createClinic(@Valid @RequestBody Clinicdto clinicDTO) {
         try {
-            Clinic savedClinic = clinicService.createClinic(clinic);
+            Clinic savedClinic = clinicService.createClinic(clinicDTO);
             return ResponseEntity.ok(savedClinic);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -41,9 +41,9 @@ public class ClinicController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateClinic(@PathVariable Long id, @Valid @RequestBody Clinic clinicDetails) {
+    public ResponseEntity<?> updateClinic(@PathVariable Long id, @Valid @RequestBody Clinicdto clinicDTO) {
         try {
-            Clinic updatedClinic = clinicService.updateClinic(id, clinicDetails);
+            Clinic updatedClinic = clinicService.updateClinic(id, clinicDTO);
             return ResponseEntity.ok(updatedClinic);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

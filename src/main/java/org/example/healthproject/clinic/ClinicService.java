@@ -24,33 +24,39 @@ public class ClinicService {
         return clinicRepository.findById(id);
     }
 
-    public Clinic createClinic(Clinic clinic) {
-        if (clinicRepository.findByName(clinic.getName()).isPresent()) {
+    public Clinic createClinic(Clinicdto clinicDTO) {
+        if (clinicRepository.findByName(clinicDTO.getName()).isPresent()) {
             throw new IllegalArgumentException("Clinic name must be unique");
         }
-        if (clinicRepository.findByPhone(clinic.getPhone()).isPresent()) {
+        if (clinicRepository.findByPhone(clinicDTO.getPhone()).isPresent()) {
             throw new IllegalArgumentException("Clinic phone must be unique");
         }
+
+        Clinic clinic = new Clinic();
+        clinic.setName(clinicDTO.getName());
+        clinic.setAddress(clinicDTO.getAddress());
+        clinic.setPhone(clinicDTO.getPhone());
+
         return clinicRepository.save(clinic);
     }
 
-    public Clinic updateClinic(Long id, Clinic clinicDetails) {
+    public Clinic updateClinic(Long id, Clinicdto clinicDTO) {
         Clinic clinic = clinicRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Clinic not found"));
 
-        if (!clinic.getName().equals(clinicDetails.getName()) &&
-                clinicRepository.findByName(clinicDetails.getName()).isPresent()) {
+        if (!clinic.getName().equals(clinicDTO.getName()) &&
+                clinicRepository.findByName(clinicDTO.getName()).isPresent()) {
             throw new IllegalArgumentException("Clinic name must be unique");
         }
 
-        if (!clinic.getPhone().equals(clinicDetails.getPhone()) &&
-                clinicRepository.findByPhone(clinicDetails.getPhone()).isPresent()) {
+        if (!clinic.getPhone().equals(clinicDTO.getPhone()) &&
+                clinicRepository.findByPhone(clinicDTO.getPhone()).isPresent()) {
             throw new IllegalArgumentException("Clinic phone must be unique");
         }
 
-        clinic.setName(clinicDetails.getName());
-        clinic.setAddress(clinicDetails.getAddress());
-        clinic.setPhone(clinicDetails.getPhone());
+        clinic.setName(clinicDTO.getName());
+        clinic.setAddress(clinicDTO.getAddress());
+        clinic.setPhone(clinicDTO.getPhone());
 
         return clinicRepository.save(clinic);
     }

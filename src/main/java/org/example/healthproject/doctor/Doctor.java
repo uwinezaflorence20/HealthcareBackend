@@ -1,5 +1,6 @@
 package org.example.healthproject.doctor;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -46,9 +47,11 @@ public class Doctor {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clinic_id")
+    @JsonBackReference
     private Clinic clinic;
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
+    @JsonBackReference
     private List<Appointment> appointments;
 
     public enum Specialty {

@@ -1,48 +1,91 @@
 package org.example.healthproject.patient;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.healthproject.clinic.Clinic;
+import org.example.healthproject.clinic.ClinicRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PatientService {
 
-    @Autowired
-    private PatientRepository patientRepository;
+    private final PatientRepository patientRepository;
+    private final ClinicRepository clinicRepository;
 
-    public List<Patient> getAllPatients() {
-        return patientRepository.findAll();
+    public PatientService(PatientRepository patientRepository, ClinicRepository clinicRepository) {
+        this.patientRepository = patientRepository;
+        this.clinicRepository = clinicRepository;
     }
 
-    public Optional<Patient> getPatientById(Long id) {
-        return patientRepository.findById(id);
+    // Convert Patient -> PatientDTO
+    public PatientDTO convertToDTO(Patient patient) {
+        PatientDTO dto = new PatientDTO();
+        dto.setFirstName(patient.getFirstName());
+        dto.setLastName(patient.getLastName());
+        dto.setEmail(patient.getEmail());
+        dto.setPhone(patient.getPhone());
+        dto.setDateOfBirth(patient.getDateOfBirth());
+        dto.setClinicId(patient.getClinic().getId());
+        return dto;
     }
 
-    public Patient savePatient(Patient patient) {
-        if (patientRepository.existsByEmail(patient.getEmail())) {
+    // Convert PatientDTO -> Patient entity
+    private Patient convertToEntity(PatientDTO dto) {
+        Clinic clinic = clinicRepository.findById(dto.getClinicId())
+                .orElseThrow(() -> new IllegalArgumentException("Clinic not found"));
+
+        Patient patient = new Patient();
+        patient.setFirstName(dto.getFirstName());
+        patient.setLastName(dto.getLastName());
+        patient.setEmail(dto.getEmail());
+        patient.setPhone(dto.getPhone());
+        patient.setDateOfBirth(dto.getDateOfBirth());
+        patient.setClinic(clinic);
+        return patient;
+    }
+
+    public List<PatientDTO> getAllPatients() {
+        return patientRepository.findAll()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public Optional<PatientDTO> getPatientById(Long id) {
+        return patientRepository.findById(id)
+                .map(this::convertToDTO);
+    }
+
+    public PatientDTO savePatient(PatientDTO patientDTO) {
+        if (patientRepository.existsByEmail(patientDTO.getEmail())) {
             throw new IllegalArgumentException("Email already exists.");
         }
-        return patientRepository.save(patient);
+        Patient patient = convertToEntity(patientDTO);
+        return convertToDTO(patientRepository.save(patient));
     }
 
-    public Patient updatePatient(Long id, Patient patientDetails) {
+    public PatientDTO updatePatient(Long id, PatientDTO patientDTO) {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Patient not found"));
 
-        if (!patient.getEmail().equals(patientDetails.getEmail()) && patientRepository.existsByEmail(patientDetails.getEmail())) {
+        if (!patient.getEmail().equals(patientDTO.getEmail()) &&
+                patientRepository.existsByEmail(patientDTO.getEmail())) {
             throw new IllegalArgumentException("Email already exists.");
         }
 
-        patient.setFirstName(patientDetails.getFirstName());
-        patient.setLastName(patientDetails.getLastName());
-        patient.setEmail(patientDetails.getEmail());
-        patient.setPhone(patientDetails.getPhone());
-        patient.setDateOfBirth(patientDetails.getDateOfBirth());
-        patient.setClinic(patientDetails.getClinic());
+        Clinic clinic = clinicRepository.findById(patientDTO.getClinicId())
+                .orElseThrow(() -> new IllegalArgumentException("Clinic not found"));
 
-        return patientRepository.save(patient);
+        patient.setFirstName(patientDTO.getFirstName());
+        patient.setLastName(patientDTO.getLastName());
+        patient.setEmail(patientDTO.getEmail());
+        patient.setPhone(patientDTO.getPhone());
+        patient.setDateOfBirth(patientDTO.getDateOfBirth());
+        patient.setClinic(clinic);
+
+        return convertToDTO(patientRepository.save(patient));
     }
 
     public void deletePatient(Long id) {
